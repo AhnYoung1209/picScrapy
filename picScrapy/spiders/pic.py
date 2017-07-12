@@ -27,7 +27,7 @@ class PicSpider(Spider):
         item['image_urls'] = response.xpath('//img[@id="bigImg"]/@src').extract()
         yield item
         # 提取界面所有的url
-        all_urls = response.xpath('//a/@href').extract()
+        all_urls = response.xpath('//div/ul/li/a/@href').extract()
         # 遍历获得的url，如果满足条件，继续爬取
         for url in all_urls:
             if re.search(r'\d{4}.html||\d{4}_\d+.html', url):
