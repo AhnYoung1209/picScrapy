@@ -5,11 +5,10 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 # -*- coding: utf-8 -*-
-import hashlib
 import re
+from urllib.parse import urlparse
 from scrapy.pipelines.images import ImagesPipeline
 from scrapy import Request
-from scrapy.utils.python import to_bytes
 
 
 class PicscrapyPipeline(ImagesPipeline):
@@ -23,5 +22,6 @@ class PicscrapyPipeline(ImagesPipeline):
             url = request
         else:
             url = request.url
-        image_guid = hashlib.sha1(to_bytes(url)).hexdigest()  # change to request.url after deprecation
-        return '%s.jpg' % image_guid
+        url = urlparse(url)
+        img_name = url.path.split('/')[5].split('.')[0]
+        return '%s.jpg' % img_name

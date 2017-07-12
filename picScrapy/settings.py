@@ -14,7 +14,7 @@ BOT_NAME = 'picScrapy'
 SPIDER_MODULES = ['picScrapy.spiders']
 NEWSPIDER_MODULE = 'picScrapy.spiders'
 # 爬取深度
-DEPTH_LIMIT = 3
+DEPTH_LIMIT = 5
 # 图片存放位置
 IMAGES_STORE = '/home/jwang/Videos/Pic'
 # 图片最小宽度
