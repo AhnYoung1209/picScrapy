@@ -1,8 +1,9 @@
 # picScrapy
+此爬虫可以爬取该站所有分类图片，仅作实验和参考，请勿用于其他用途
 1. 一些设置
 ```
 # 爬取深度
-DEPTH_LIMIT = 3
+DEPTH_LIMIT = 5
 # 图片存放位置
 IMAGES_STORE = '/home/jwang/Videos/Pic'
 # 图片最小宽度
@@ -20,6 +21,5 @@ CONCURRENT_REQUESTS = 20
 
 2. 启动爬虫
 ```
-python3 -m scrapy crawl pic --loglevel INFO
+python3 -m scrapy crawl pic
 ```
-一般会有很多异常，比如那个不满足图片大小会抛异常，不影响运行

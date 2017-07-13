@@ -16,7 +16,10 @@ class PicSpider(Spider):
     }
 
     def start_requests(self):
+
         domain = 'http://www.jj20.com/bz/'
+
+        # 定义各个分类的入口
         start_urls = [
             'zrfg/list_1',
             'dwxz/list_2',
@@ -41,6 +44,7 @@ class PicSpider(Spider):
             'jxbz/list_120',
 
         ]
+
         for i in start_urls:
             url = domain + i + '_1.html'
             yield Request(url, headers=self.headers)
@@ -50,6 +54,7 @@ class PicSpider(Spider):
         # 提取界面所有的符合入口条件的url
         all_urls = response.xpath('//div[@class="main"]/ul/li/a[1]/@href').extract()
         category_name = response.xpath('//li[@class="navnm1"]/a/text()').extract()[0]
+
         if len(all_urls):
             # 遍历获得的url，继续爬取
             for url in all_urls:
@@ -59,6 +64,7 @@ class PicSpider(Spider):
 
             next_url = re.search(r'list_\d+_(\d+)', response.url)
             next_page = str(int(next_url.group(1)) + 1) + '.html'
+            # 下一页的url
             next_url = re.sub(r'(\d+).html', next_page, response.url)
             yield Request(next_url, callback=self.parse, meta={'cat': category_name})
 
@@ -71,7 +77,8 @@ class PicSpider(Spider):
         item['title'] = title.split('(')[0] + '(' + re.search(r'(\d+)/(\d+)', title).group(2) + ')'
         item['category_name'] = response.meta['cat']
         yield item
-        # 提取界面所有复合条件的url
+
+        # 提取符合条件的url
         all_urls = response.xpath('//ul[@id="showImg"]/li/a/@href').extract()
         # 遍历获得的url，继续爬取
         for url in all_urls:
@@ -79,9 +86,10 @@ class PicSpider(Spider):
             yield Request(url, callback=self.parse_img_img, meta={'cat': response.meta['cat']})
 
     @staticmethod
+    # 三级页面的处理函数
     def parse_img_img(response):
         item = PicscrapyItem()
-        # 提取页面符合条件的图片地址
+        # 提取符合条件的图片地址
         item['image_urls'] = response.xpath('//img[@id="bigImg"]/@src').extract()
         title = response.xpath('/html/body/div[3]/h1/span/text()').extract()[0]
         item['title'] = title.split('(')[0] + '(' + re.search(r'(\d+)/(\d+)', title).group(2) + ')'
