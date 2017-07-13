@@ -12,3 +12,4 @@ class PicscrapyItem(scrapy.Item):
     image_urls = scrapy.Field()
     images = scrapy.Field()
     title = scrapy.Field()
+    category_name = scrapy.Field()

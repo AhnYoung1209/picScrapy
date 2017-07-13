@@ -11,10 +11,10 @@ from scrapy import Request
 
 
 class PicscrapyPipeline(ImagesPipeline):
-
     def get_media_requests(self, item, info):
         # 通过meta属性传递title
-        return [Request(x, meta={'title': item['title']}) for x in item.get(self.images_urls_field, [])]
+        return [Request(x, meta={'title': item['title'], 'cat': item['category_name']}) for x in
+                item.get(self.images_urls_field, [])]
 
     # 重写函数，修改了下载图片名称的生成规则
     def file_path(self, request, response=None, info=None):
@@ -24,4 +24,4 @@ class PicscrapyPipeline(ImagesPipeline):
             url = request.url
         url = urlparse(url)
         img_name = url.path.split('/')[5].split('.')[0]
-        return request.meta['title'] + '/%s.jpg' % img_name
+        return request.meta['cat'] + '/' + request.meta['title'] + '/%s.jpg' % img_name

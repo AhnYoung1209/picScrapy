@@ -16,41 +16,74 @@ class PicSpider(Spider):
     }
 
     def start_requests(self):
-        for i in range(1, 31):
-            url = 'http://www.jj20.com/bz/nxxz/list_7_cc_14_%d.html' % i
+        domain = 'http://www.jj20.com/bz/'
+        start_urls = [
+            'zrfg/list_1',
+            'dwxz/list_2',
+            'hhzw/list_3',
+            'jzfg/list_4',
+            'qcjt/list_5',
+            'ysbz/list_6',
+            'nxxz/list_7',
+            'rwtx/list_8',
+            'jwxz/list_9',
+            'mwjy/list_10',
+            'czxt/list_11',
+            'sjsh/list_12',
+            'ysyx/list_13',
+            'tyyd/list_14',
+            'ppgg/list_15',
+            'ktmh/list_16',
+            'shsj/list_17',
+            'slkt/list_18',
+            'xmsc/list_19',
+            'jqqd/list_20',
+            'jxbz/list_120',
+
+        ]
+        for i in start_urls:
+            url = domain + i + '_1.html'
             yield Request(url, headers=self.headers)
 
     # 一级页面的处理函数
     def parse(self, response):
         # 提取界面所有的符合入口条件的url
         all_urls = response.xpath('//div[@class="main"]/ul/li/a[1]/@href').extract()
-        # 遍历获得的url，继续爬取
-        for url in all_urls:
-            # urljoin生成完整url地址
-            url = urljoin(response.url, url)
-            yield Request(url, callback=self.parse_img)
+        category_name = response.xpath('//li[@class="navnm1"]/a/text()').extract()[0]
+        if len(all_urls):
+            # 遍历获得的url，继续爬取
+            for url in all_urls:
+                # urljoin生成完整url地址
+                url = urljoin(response.url, url)
+                yield Request(url, callback=self.parse_img, meta={'cat': category_name})
+
+            next_url = re.search(r'list_\d+_(\d+)', response.url)
+            next_page = str(int(next_url.group(1)) + 1) + '.html'
+            next_url = re.sub(r'(\d+).html', next_page, response.url)
+            yield Request(next_url, callback=self.parse, meta={'cat': category_name})
 
     # 二级页面的处理函数
     def parse_img(self, response):
         item = PicscrapyItem()
-        # 提前页面符合条件的图片地址
+        # 提取页面符合条件的图片地址
         item['image_urls'] = response.xpath('//img[@id="bigImg"]/@src').extract()
         title = response.xpath('/html/body/div[3]/h1/span/text()').extract()[0]
         item['title'] = title.split('(')[0] + '(' + re.search(r'(\d+)/(\d+)', title).group(2) + ')'
+        item['category_name'] = response.meta['cat']
         yield item
         # 提取界面所有复合条件的url
         all_urls = response.xpath('//ul[@id="showImg"]/li/a/@href').extract()
         # 遍历获得的url，继续爬取
         for url in all_urls:
             url = urljoin(response.url, url)
-            yield Request(url, callback=self.parse_img_img)
+            yield Request(url, callback=self.parse_img_img, meta={'cat': response.meta['cat']})
 
     @staticmethod
-    # 三级页面的处理函数
     def parse_img_img(response):
         item = PicscrapyItem()
-        # 提前页面符合条件的图片地址
+        # 提取页面符合条件的图片地址
         item['image_urls'] = response.xpath('//img[@id="bigImg"]/@src').extract()
         title = response.xpath('/html/body/div[3]/h1/span/text()').extract()[0]
         item['title'] = title.split('(')[0] + '(' + re.search(r'(\d+)/(\d+)', title).group(2) + ')'
+        item['category_name'] = response.meta['cat']
         yield item
