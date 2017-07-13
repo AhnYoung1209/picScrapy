@@ -35,6 +35,8 @@ class PicSpider(Spider):
         item = PicscrapyItem()
         # 提前页面符合条件的图片地址
         item['image_urls'] = response.xpath('//img[@id="bigImg"]/@src').extract()
+        title = response.xpath('/html/body/div[3]/h1/span/text()').extract()[0]
+        item['title'] = title.split('(')[0] + '(' + re.search(r'(\d+)/(\d+)', title).group(2) + ')'
         yield item
         # 提取界面所有复合条件的url
         all_urls = response.xpath('//ul[@id="showImg"]/li/a/@href').extract()
