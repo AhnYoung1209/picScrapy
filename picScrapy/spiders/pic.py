@@ -43,4 +43,14 @@ class PicSpider(Spider):
         # 遍历获得的url，继续爬取
         for url in all_urls:
             url = urljoin(response.url, url)
-            yield Request(url, callback=self.parse_img)
+            yield Request(url, callback=self.parse_img_img)
+
+    @staticmethod
+    # 三级页面的处理函数
+    def parse_img_img(response):
+        item = PicscrapyItem()
+        # 提前页面符合条件的图片地址
+        item['image_urls'] = response.xpath('//img[@id="bigImg"]/@src').extract()
+        title = response.xpath('/html/body/div[3]/h1/span/text()').extract()[0]
+        item['title'] = title.split('(')[0] + '(' + re.search(r'(\d+)/(\d+)', title).group(2) + ')'
+        yield item
